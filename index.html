@@ -80,7 +80,7 @@
     <div id="ui-layer">
         <!-- hongvinh -->
         <div class="guide">
-            🖐 <b>Open:</b> Explode &nbsp;|&nbsp; 🫶 <b>Heart:</b> Love &nbsp;|&nbsp; ✊ <b>Fist:</b> Tree
+              ✊ <b>Nắm tay:</b> Tree &nbsp;|&nbsp; 🖐 <b>Xòe tay:</b> Explode &nbsp;|&nbsp;👌 <b>Chụm tay:</b> Xem ảnh &nbsp;|&nbsp; 🫶 <b>Trái tim:</b> Love 
         </div>
         <button id="btnStart" onclick="startSystem()">START MAGIC</button>
     </div>
@@ -139,6 +139,61 @@
             red: createCustomTexture('red_light'),
             gift: createCustomTexture('gift_red')
         };
+
+        function createHeartBorderTexture(size = 512) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, size, size);
+            ctx.translate(size / 2, size / 2);
+
+            ctx.beginPath();
+            const scale = size / 32;
+            for (let t = 0; t <= Math.PI * 2; t += 0.01) {
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y =
+                    13 * Math.cos(t) -
+                    5 * Math.cos(2 * t) -
+                    2 * Math.cos(3 * t) -
+                    Math.cos(4 * t);
+                ctx.lineTo(x * scale, -y * scale);
+            }
+            ctx.closePath();
+
+            ctx.strokeStyle = '#FF69B4';
+            ctx.lineWidth = size * 0.04;
+            ctx.shadowColor = '#FF1493';
+            ctx.shadowBlur = size * 0.08;
+            ctx.stroke();
+
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createHeartMaskTexture(size = 512) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, size, size);
+            ctx.translate(size / 2, size / 2);
+
+            ctx.beginPath();
+            const scale = size / 32;
+            for (let t = 0; t <= Math.PI * 2; t += 0.01) {
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+                ctx.lineTo(x * scale, -y * scale);
+            }
+            ctx.closePath();
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+
+            return new THREE.CanvasTexture(canvas);
+        }
 
         // ==========================================
         // 2. SYSTEM CONFIG hongvinh
@@ -280,14 +335,23 @@
             const photoSize = isMobile ? 6 : 8;
             const borderSize = isMobile ? 6.8 : 9;
             const geo = new THREE.PlaneGeometry(photoSize, photoSize);
-            const borderGeo = new THREE.PlaneGeometry(borderSize, borderSize); 
-            const borderMat = new THREE.MeshBasicMaterial({ color: 0xFFD700 }); 
+            const borderGeo = new THREE.PlaneGeometry(borderSize, borderSize);
+            const borderMat = new THREE.MeshBasicMaterial({
+                color: 0xFF69B4,
+                transparent: true,
+                depthWrite: false
+            });
 
             for(let i=0; i<5; i++) {
-                const mat = new THREE.MeshBasicMaterial({ map: photoTextures[i], side: THREE.DoubleSide });
+                const mat = new THREE.MeshBasicMaterial({ 
+                    map: photoTextures[i], 
+                    transparent: true,
+                    side: THREE.DoubleSide,
+                    depthWrite: false
+                });
                 const mesh = new THREE.Mesh(geo, mat);
                 const border = new THREE.Mesh(borderGeo, borderMat);
-                border.position.z = -0.1; 
+                border.position.z = -0.05; 
                 mesh.add(border);
                 mesh.visible = false; mesh.scale.set(0,0,0);
                 scene.add(mesh);
